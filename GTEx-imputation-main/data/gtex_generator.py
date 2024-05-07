@@ -3,9 +3,13 @@ import pandas as pd
 from data.data_utils import standardize, split_train_test, sample_mask
 from data.pathways import select_genes_pathway
 
-GTEX_FILE = "C:\\Users/alexh/Documents/Master/CS598_deep_learning_in_healthcare/project/data/gtex_lung_colon.csv" #/home/rv340/adversarial-gtex/data/GTEX_data.csv'
+#GTEX_FILE = "C:\\Users/alexh/Documents/Master/CS598_deep_learning_in_healthcare/project/data/gtex_lung_colon.csv" #/home/rv340/adversarial-gtex/data/GTEX_data.csv'
 #METADATA_FILE = "C:\\Users/alexh/Documents/Master/CS598_deep_learning_in_healthcare/project/data/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS.txt"
-METADATA_FILE = "C:\\Users/alexh/Documents/Master/CS598_deep_learning_in_healthcare/project/data/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS_Lung_Colon.txt"
+#METADATA_FILE = "C:\\Users/alexh/Documents/Master/CS598_deep_learning_in_healthcare/project/data/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS_Lung_Colon.txt"
+
+GTEX_FILE = "data/gtex_lung_colon.csv" #/home/rv340/adversarial-gtex/data/GTEX_data.csv'
+#METADATA_FILE = "C:\\Users/alexh/Documents/Master/CS598_deep_learning_in_healthcare/project/data/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS.txt"
+METADATA_FILE = "data/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS_Lung_Colon.txt"
 
 def GTEx(file, random_seed=0):
     df = pd.read_csv(file, index_col=0).sample(frac=1, random_state=random_seed)
