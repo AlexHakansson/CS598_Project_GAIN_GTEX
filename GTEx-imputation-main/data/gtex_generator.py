@@ -49,7 +49,7 @@ class GTExGenerator:
         self.metadata = df_metadata
 
         # Process categorical metadata
-        cat_cols = ['SEX','DTHHRDY']# 'COHORT']  # 'SEX', 'COHORT'
+        cat_cols = ['SEX']#,'DTHHRDY']# 'COHORT']  # 'SEX', 'COHORT'
         self.cat_cols = cat_cols
         df_metadata[cat_cols] = df_metadata[cat_cols].astype('category')
         cat_dicts = [df_metadata[cat_col].cat.categories.values for cat_col in cat_cols]

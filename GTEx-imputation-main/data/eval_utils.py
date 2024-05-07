@@ -36,7 +36,9 @@ def r2_scores(x_gt, x_pred, mask):
     mask_r[:, gene_means == 0] = np.nan  # Discard genes with 0 variance
     ss_res = np.nansum((1 - mask_r) * (x_gt - x_pred) ** 2, axis=0)
     ss_tot = np.nansum((1 - mask_r) * (x_gt - gene_means) ** 2, axis=0)
-    r_sq = 1 - ss_res / ss_tot
+    #print(ss_res)
+    #print(ss_tot)
+    r_sq = 1 - ss_res / (ss_tot+10**-50)
     return r_sq
 
 

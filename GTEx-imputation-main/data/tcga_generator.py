@@ -5,53 +5,62 @@ from data.pathways import select_genes_pathway
 
 
 def TCGA_FILE(cancer_type):
-    return '/local/scratch/rv340/tcga/TCGA-{}.htseq_fpkm.tsv'.format(cancer_type)
+    #return '/local/scratch/rv340/tcga/TCGA-{}.htseq_fpkm.tsv'.format(cancer_type)
+    return 'data/{}_tcga_p53_cleaned.csv'.format(cancer_type)
 
 
 def TCGA_METADATA_FILE(cancer_type):
-    return '/local/scratch/rv340/tcga/{}_clinicalMatrix'.format(cancer_type)
-
+    #return '/local/scratch/rv340/tcga/{}_clinicalMatrix'.format(cancer_type)
+    return 'data/{}_clinical_clean.csv'.format(cancer_type)
 
 def get_GTEx_tissue(cancer_type):
     if cancer_type == 'LAML':
         return 'Whole_Blood', 48
-    elif cancer_type == 'BRCA':
-        return 'Breast_Mammary_Tissue', 19
+    # elif cancer_type == 'BRCA':
+        # return 'Breast_Mammary_Tissue', 19
+    elif cancer_type == 'COAD':
+        return 'colon', 0
     elif cancer_type == 'LUAD':
-        return 'Lung', 31
+        return 'lung', 1
     else:
         raise ValueError('Cancer type {} not supported'.format(cancer_type))
 
 
 def TCGA(file, clinical_file, tissue_idx=None, gtex_gene_symbols=None):
-    df = pd.read_csv(file, delimiter='\t')
-    df = df.set_index('Ensembl_ID')
+    df = pd.read_csv(file, delimiter=',',index_col=0)
+    ##df = df.set_index('Ensembl_ID')
 
+    ### we have already cleand up TCGA data
     # Transform gene symbols
-    gene_symbols, ENSEMBL_found = ENSEMBL_to_gene_symbols(df.index)
-    df = df.loc[ENSEMBL_found]
-    df = df.rename(index=dict(zip(df.index, gene_symbols)))
-    if gtex_gene_symbols is not None:
-        df = df.loc[gtex_gene_symbols]
-        gene_symbols = gtex_gene_symbols
-    df = df.groupby('Ensembl_ID', group_keys=False).apply(
-        lambda x: x[x.sum(axis=1) == np.max(x.sum(axis=1))])  # Remove duplicates, keep max
+    # gene_symbols, ENSEMBL_found = ENSEMBL_to_gene_symbols(df.index)
+    # df = df.loc[ENSEMBL_found]
+    # df = df.rename(index=dict(zip(df.index, gene_symbols)))
+    # if gtex_gene_symbols is not None:
+        # df = df.loc[gtex_gene_symbols]
+        # gene_symbols = gtex_gene_symbols
+    # df = df.groupby('Ensembl_ID', group_keys=False).apply(
+        # lambda x: x[x.sum(axis=1) == np.max(x.sum(axis=1))])  # Remove duplicates, keep max
 
     # Get data
     x_TCGA = df.values.T
 
     # Process covariates
     sample_ids = df.columns
-    clinical_df = pd.read_csv(clinical_file, delimiter='\t')
-    idxs = [np.argwhere(s[:-1] == clinical_df['sampleID']).ravel()[0] for s in df.columns]
-    gender = np.array([0 if g == 'MALE' else 1 for g in clinical_df.iloc[idxs]['gender']])
-    age = clinical_df.iloc[idxs]['age_at_initial_pathologic_diagnosis'].values
+    gene_symbols = df.index
+    clinical_df = pd.read_csv(clinical_file, delimiter=',',index_col=0)
+    #idxs = [np.argwhere(s == clinical_df['SUBJID']).ravel()[0] for s in df.columns]
+    idxs = [clinical_df.index[clinical_df['SUBJID'] == s][0]-1 for s in df.columns]
+    gender = np.array([0 if g == 'Male' else 1 for g in clinical_df.iloc[idxs]['SEX']])
+    age = pd.to_numeric(clinical_df.iloc[idxs]['AGE']).values
+
     mean_age = 52.7763  # Mean age GTEx
     std_age = 12.9351  # Std age GTEx
     age = (age - mean_age) / std_age
-    cc_TCGA = np.zeros((x_TCGA.shape[0], 3))
+    cc_TCGA = np.zeros((x_TCGA.shape[0], 2))
     cc_TCGA[:, 0] = gender
-    cc_TCGA[:, 2] = tissue_idx
+    cc_TCGA[:, 1] = tissue_idx
+
+    print(cc_TCGA.shape)
     nc_TCGA = age[..., None]
 
     return x_TCGA, gene_symbols, sample_ids, np.int32(cc_TCGA), nc_TCGA
