@@ -21,6 +21,19 @@ pip install pyyaml
 pip install keras
 pip install wandb
 pip install tensorflow
+pip install numpy
 ```
 
-To run the notebook ensure that you make this your current working directory.
+To run the notebook ensure that you make this your current working directory. After that the notebook should run without issue. 
+If you modify datafiles you may need to change the hardcoded data paths in the scripts:
+
+GTEx-imputation/data/gtex_generator.py
+
+GTEx-imputation/data/tcga_generator.py
+
+
+For more examples of how to run the model please look at
+
+GTEx-imputation/imputation.py
+
+for example config files please look at the config files in config
